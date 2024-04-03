@@ -18,6 +18,15 @@ export default class NewBill {
   handleChangeFile = e => {
     e.preventDefault()
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
+    if(file.type != 'image/png' && file.type != 'image/jpeg') {
+      e.target.value = '';
+      this.document.getElementById('errorMsg').style.display = 'block';
+      this.document.getElementById('btn-send-bill').setAttribute('disabled', 'disabled');
+      return
+    }
+    this.document.getElementById('btn-send-bill').removeAttribute('disabled');
+    this.document.getElementById('errorMsg').style.display = 'none';
+
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
     const formData = new FormData()

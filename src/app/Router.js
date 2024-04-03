@@ -9,9 +9,14 @@ import DashboardUI from "../views/DashboardUI.js"
 
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js"
 
-export default () => {
+export default (mockStore = null, localStorageMock = null) => {
   const rootDiv = document.getElementById('root')
   rootDiv.innerHTML = ROUTES({ pathname: window.location.pathname })
+
+  let theStore = store;
+  if(mockStore) {
+    theStore = mockStore;
+  }
 
   window.onNavigate = (pathname) => {
 
@@ -30,7 +35,8 @@ export default () => {
       const divIcon2 = document.getElementById('layout-icon2')
       divIcon1.classList.add('active-icon')
       divIcon2.classList.remove('active-icon')
-      const bills = new Bills({ document, onNavigate, store, localStorage  })
+      const bills = new Bills({ document, onNavigate, store: theStore, localStorage  })
+      // console.log(theStore);
       bills.getBills().then(data => {
         rootDiv.innerHTML = BillsUI({ data })
         const divIcon1 = document.getElementById('layout-icon1')

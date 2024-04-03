@@ -44,7 +44,7 @@ export default () => {
                     </div>
                     <div class="flex-col">
                       <label for="pct" class="white-text">%</label>
-                      <input required type="number" class="form-control blue-border" data-testid="pct" placeholder="20" />
+                      <input required type="number" class="form-control blue-border" data-testid="pct" accept="image/*" placeholder="20" />
                     </div>
                   </div>
                 </div>
@@ -56,6 +56,7 @@ export default () => {
                   <div class="col-half">
                     <label for="file" class="bold-label">Justificatif</label>
                     <input required type="file" class="form-control blue-border" data-testid="file" />
+                    <span id="errorMsg">Le format du fichier n'est pas supporté</span>
                   </div>
                 </div>
             </div>
