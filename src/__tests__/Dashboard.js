@@ -2,44 +2,49 @@
  * @jest-environment jsdom
  */
 
-import {fireEvent, screen, waitFor} from "@testing-library/dom"
 import userEvent from '@testing-library/user-event'
+import { fireEvent, screen, waitFor } from "@testing-library/dom"
+import { ROUTES, ROUTES_PATH } from "../constants/routes"
+import { bills } from "../fixtures/bills"
+import { localStorageMock } from "../__mocks__/localStorage.js"
+import mockStore from "../__mocks__/store"
 import DashboardFormUI from "../views/DashboardFormUI.js"
 import DashboardUI from "../views/DashboardUI.js"
 import Dashboard, { filteredBills, cards } from "../containers/Dashboard.js"
-import { ROUTES, ROUTES_PATH } from "../constants/routes"
-import { localStorageMock } from "../__mocks__/localStorage.js"
-import mockStore from "../__mocks__/store"
-import { bills } from "../fixtures/bills"
 import router from "../app/Router"
 
 jest.mock("../app/store", () => mockStore)
 
 describe('Given I am connected as an Admin', () => {
+
   describe('When I am on Dashboard page, there are bills, and there is one pending', () => {
     test('Then, filteredBills by pending status should return 1 bill', () => {
       const filtered_bills = filteredBills(bills, "pending")
       expect(filtered_bills.length).toBe(1)
     })
   })
+
   describe('When I am on Dashboard page, there are bills, and there is one accepted', () => {
     test('Then, filteredBills by accepted status should return 1 bill', () => {
       const filtered_bills = filteredBills(bills, "accepted")
       expect(filtered_bills.length).toBe(1)
     })
   })
+
   describe('When I am on Dashboard page, there are bills, and there is two refused', () => {
     test('Then, filteredBills by accepted status should return 2 bills', () => {
       const filtered_bills = filteredBills(bills, "refused")
       expect(filtered_bills.length).toBe(2)
     })
   })
+
   describe('When I am on Dashboard page but it is loading', () => {
     test('Then, Loading page should be rendered', () => {
       document.body.innerHTML = DashboardUI({ loading: true })
       expect(screen.getAllByText('Loading...')).toBeTruthy()
     })
   })
+
   describe('When I am on Dashboard page but back-end send an error message', () => {
     test('Then, Error page should be rendered', () => {
       document.body.innerHTML = DashboardUI({ error: 'some error message' })
@@ -49,7 +54,6 @@ describe('Given I am connected as an Admin', () => {
 
   describe('When I am on Dashboard page and I click on arrow', () => {
     test('Then, tickets list should be unfolding, and cards should appear', async () => {
-
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
       }
@@ -186,6 +190,7 @@ describe('Given I am connected as Admin, and I am on Dashboard page, and I click
       expect(bigBilledIcon).toBeTruthy()
     })
   })
+
   describe('When I click on refuse button', () => {
     test('I should be sent on Dashboard with big billed icon instead of form', () => {
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
@@ -242,9 +247,13 @@ describe('Given I am connected as Admin and I am on Dashboard page and I clicked
 
 // test d'intégration GET
 describe("Given I am a user connected as Admin", () => {
+
   describe("When I navigate to Dashboard", () => {
     test("fetches bills from mock API GET", async () => {
-      localStorage.setItem("user", JSON.stringify({ type: "Admin", email: "a@a" }));
+      localStorage.setItem("user", JSON.stringify({ 
+        type: "Admin", 
+        email: "a@a" 
+      }));
       const root = document.createElement("div")
       root.setAttribute("id", "root")
       document.body.append(root)
@@ -257,6 +266,8 @@ describe("Given I am a user connected as Admin", () => {
       expect(contentRefused).toBeTruthy()
       expect(screen.getByTestId("big-billed-icon")).toBeTruthy()
     })
+  })
+
   describe("When an error occurs on API", () => {
     beforeEach(() => {
       jest.spyOn(mockStore, "bills")
@@ -274,8 +285,8 @@ describe("Given I am a user connected as Admin", () => {
       document.body.appendChild(root)
       router()
     })
-    test("fetches bills from an API and fails with 404 message error", async () => {
 
+    test("fetches bills from an API and fails with 404 message error", async () => {
       mockStore.bills.mockImplementationOnce(() => {
         return {
           list : () =>  {
@@ -289,7 +300,6 @@ describe("Given I am a user connected as Admin", () => {
     })
 
     test("fetches messages from an API and fails with 500 message error", async () => {
-
       mockStore.bills.mockImplementationOnce(() => {
         return {
           list : () =>  {
@@ -302,8 +312,6 @@ describe("Given I am a user connected as Admin", () => {
       const message = await screen.getByText(/Erreur 500/)
       expect(message).toBeTruthy()
     })
-  })
-
   })
 })
 
