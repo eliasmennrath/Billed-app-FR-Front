@@ -29,17 +29,13 @@ describe("Given I am connected as an employee", () => {
 
           const html = NewBillUI()
           document.body.innerHTML = html
-
           const onNavigate = pathname => {
             document.body.innerHTML = ROUTES({ pathname })
           };
-
           const newBill = new NewBill({
             document, onNavigate,  store: mockedBills, localStorage: window.localStorage
           })
-
           const file = new File(['test'], 'test.html', { type: 'text/html' })
-
           const handleChangeFile = jest.fn((e) => newBill.handleChangeFile(e))
 
           const input = screen.getByTestId("file")
@@ -61,7 +57,6 @@ describe("Given I am connected as an employee", () => {
 
     describe("A valid file is selected", () => {
       test("Then there is no error message and the button should be enabled", () => {
-
         jest.mock("../app/store", () => mockedBills)
 
         Object.defineProperty(window, 'localStorage', { value: localStorageMock })
@@ -72,7 +67,6 @@ describe("Given I am connected as an employee", () => {
 
         const html = NewBillUI()
         document.body.innerHTML = html
-
         const onNavigate = pathname => {
           document.body.innerHTML = ROUTES({ pathname })
         };
@@ -80,9 +74,7 @@ describe("Given I am connected as an employee", () => {
         const newBill = new NewBill({
           document, onNavigate,  store: mockedBills, localStorage: window.localStorage
         })
-
         const file = new File(['test'], 'test.png', { type: 'image/png' })
-        
         const input = screen.getByTestId("file")
 
         userEvent.upload(input, file);
@@ -101,79 +93,70 @@ describe("Given I am connected as an employee", () => {
     })
 
     describe("When I submit the new bill", () => {
+      test("Handlesubmit is called", () => {
+        jest.mock("../app/store", () => mockedBills)
 
-      jest.mock("../app/store", () => mockedBills)
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+        window.localStorage.setItem('user', JSON.stringify({
+          type: 'Employee',
+          email: 'a@a'
+        }))
 
-      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      window.localStorage.setItem('user', JSON.stringify({
-        type: 'Employee',
-        email: 'a@a'
-      }))
+        const html = NewBillUI()
+        document.body.innerHTML = html
+        const onNavigate = pathname => {
+          document.body.innerHTML = ROUTES({ pathname })
+        };
+        const newBill = new NewBill({
+          document, onNavigate,  store: mockedBills, localStorage: window.localStorage
+        })
 
-      const html = NewBillUI()
-      document.body.innerHTML = html
+        const handleSubmit = jest.fn((e) => newBill.handleSubmit(e))
+        const form = screen.getByTestId('form-new-bill');
 
-      const onNavigate = pathname => {
-        document.body.innerHTML = ROUTES({ pathname })
-      };
-
-      const newBill = new NewBill({
-        document, onNavigate,  store: mockedBills, localStorage: window.localStorage
+        form.addEventListener('submit', handleSubmit);
+        fireEvent.submit(form)
+        expect(handleSubmit).toHaveBeenCalled()
       })
-
-
-      const handleSubmit = jest.fn((e) => newBill.handleSubmit(e))
-
-      const form = screen.getByTestId('form-new-bill');
-
-      form.addEventListener('submit', handleSubmit);
-      fireEvent.submit(form)
-      expect(handleSubmit).toHaveBeenCalled()
     })
   })
 
   describe("When I am on the NewBill page and the API returns an error", () => {
-    jest.mock("../app/store", () => mockedBills)
+    test("Then an error message should be displayed", () => {
+      jest.mock("../app/store", () => mockedBills)
 
-    jest.spyOn(console, "error").mockImplementation(() => {});
-    jest.spyOn(mockedBills, "bills");
+      jest.spyOn(mockedBills, "bills");
 
-      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      window.localStorage.setItem('user', JSON.stringify({
-        type: 'Employee',
-        email: 'a@a'
-      }))
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+        window.localStorage.setItem('user', JSON.stringify({
+          type: 'Employee',
+          email: 'a@a'
+        }))
 
-      const html = NewBillUI()
-      document.body.innerHTML = html
-
-      const onNavigate = pathname => {
-        document.body.innerHTML = ROUTES({ pathname })
-      };
-
-      const newBill = new NewBill({
-        document, onNavigate,  store: mockedBills, localStorage: window.localStorage
-      })
-
-      mockedBills.bills.mockImplementationOnce(() => {
-        return {
-          create: jest.fn().mockRejectedValueOnce(false)
+        const html = NewBillUI()
+        document.body.innerHTML = html
+        const onNavigate = pathname => {
+          document.body.innerHTML = ROUTES({ pathname })
         };
-      });
+        const newBill = new NewBill({
+          document, onNavigate,  store: mockedBills, localStorage: window.localStorage
+        })
+        mockedBills.bills.mockImplementationOnce(() => {
+          return {
+            create: jest.fn().mockRejectedValueOnce(false)
+          };
+        });
+        const file = new File(['test'], 'test.png', { type: 'image/png' })
+        const input = screen.getByTestId("file")
 
-      const file = new File(['test'], 'test.png', { type: 'image/png' })
-      
-      const input = screen.getByTestId("file")
-
-      try {
-        userEvent.upload(input, file);
-        const handleChangeFile = jest.fn((e) => newBill.handleChangeFile(e))
-        input.addEventListener('change', handleChangeFile)
-        fireEvent(input, new Event('change'))
-      } catch(error) {
-        expect(error).toMatch("error")
-      }
-
-      jest.clearAllMocks();
+        try {
+          userEvent.upload(input, file);
+          const handleChangeFile = jest.fn((e) => newBill.handleChangeFile(e))
+          input.addEventListener('change', handleChangeFile)
+          fireEvent(input, new Event('change'))
+        } catch(error) {
+          expect(error).toMatch("error")
+        }
+      })
   })
 })
